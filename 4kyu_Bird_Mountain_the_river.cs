@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CodingChallenges;
 [TestClass]
@@ -123,45 +120,131 @@ public class _4kyu_Bird_Mountain_the_river {
             "^^^^^^^^     ^     ^ ".ToCharArray(),
             "^^^^^        ^^^^^^^ ".ToCharArray()
         };
-        CollectionAssert.AreEqual(new int[] { 189, 99, 19, 3 }, DryGround(terrain));
+        //CollectionAssert.AreEqual(new int[] { 189, 99, 19, 3 }, DryGround(terrain));
 
+        terrain = new char[][] {
+            "--------------------".ToCharArray(),
+            "^^^^ ^^^^  ^^^^^^^^ ".ToCharArray(),
+            "^^^^^^^^^^          ".ToCharArray(),
+            "^^                  ".ToCharArray(),
+            "^     ^^^^^         ".ToCharArray(),
+            "^^ ^^^^^^^^^        ".ToCharArray(),
+            "  ^^^^^^^^^   ^^^^^ ".ToCharArray(),
+            "  ^^^^^^^^^^^ ^^^^^^".ToCharArray(),
+            "  ^^^^^^^^^^  ^^^^^ ".ToCharArray(),
+            "   ^^^^^^^^^^  ^^^^^".ToCharArray(),
+            "   ^^^^^^           ".ToCharArray()
+
+        };
+        CollectionAssert.AreEqual(new int[] { 200, 125, 41, 14 }, DryGround(terrain));
     }
 
     public static int[] DryGround(char[][] m) {
+        if (m is null || m.Length == 0 || m[0].Length == 0) return new int[] { 0, 0, 0, 0 };
+        int[] results = new int[4];
+        int count = 0;
+        int days = 0;
 
+        Action PrintAndCalc = () => {
+            Console.WriteLine($"Day {days}");
+            Console.Write(string.Join("\n", m.Select(x => "|" + string.Concat(x) + "|")) + "\n");
+            count = m.SelectMany(x => x).Count(p => p != '-');
+            results[days] = count;
+            Console.WriteLine(count);
+        };
 
-        Console.Write(string.Join("\n", m.Select(x => "|" + string.Concat(x) + "|")) + "\n");
-        Console.WriteLine(m.SelectMany(x => x).Count(p => p != '-'));
+        MarkTheEdges(m);        // DAY 0
+        PrintAndCalc();
 
+        days++;                 // DAY 1
         FillTheTerrain(m);
-        Console.Write(string.Join("\n", m.Select(x => "|" + string.Concat(x) + "|")) + "\n");
-        Console.WriteLine(m.SelectMany(x => x).Count(p => p != '-'));
+        PrintAndCalc();
 
 
-        return new int[] { 0, 0, 0, 0 };
+        while (days++ < 3) {   // DAYS 2,3
+            TrimMarkedEdges(m);
+            FillTheTerrain(m);
+            MarkTheEdges(m);
+            PrintAndCalc();
+
+        }
+        Console.WriteLine("Result numbers: " + string.Join(",", results));
+        return results;
     }
 
     private static void FillTheTerrain(char[][] m) {
-        int rounds = 2;
+        int rounds = 3;
         while (rounds-- > 0) {
-            for (int y = 0; y < m.Length - 1; y++) { // down
-                for (int x = 0; x < m[y].Length; x++) {
-                    if (m[y][x] == '-') {
-                        if (x < m[y].Length-1 && m[y][x + 1] != '^') m[y][x + 1] = '-';
-                        if (m[y + 1][x] != '^') m[y + 1][x] = '-';
-                    }
 
+            for (int y = 0; y < m.Length; y++) { // down-up
+                for (int x = 0; x < m[y].Length; x++) {
+                    if (m[y][x] == ' ') {
+                        if (x > 0 && m[y][x - 1] == '-') m[y][x] = '-';
+                        if (x < m[y].Length - 1 && m[y][x + 1] == '-') m[y][x] = '-';
+                    }
                 }
             }
-            for (int y = m.Length - 1; y > 0; y--) { // up
+
+            for (int y = m.Length - 1; y >= 0; y--) { // up-down
                 for (int x = m[y].Length - 1; x >= 0; x--) {
-                    if (m[y][x] == '-') {
-                        if (x > 0 && m[y][x - 1] != '^') m[y][x - 1] = '-';
-                        if (m[y - 1][x] != '^') m[y - 1][x] = '-';
+                    if (m[y][x] == ' ') {
+                        if (x > 0 && m[y][x - 1] == '-') m[y][x] = '-';
+                        if (x < m[y].Length - 1 && m[y][x + 1] == '-') m[y][x] = '-';
+                    }
+                }
+            }
+
+            for (int x = 0; x < m[0].Length; x++) { // left-right
+                for (int y = 0; y < m.Length; y++) {
+                    if (m[y][x] == ' ') {
+                        if (y > 0 && m[y - 1][x] == '-') m[y][x] = '-';
+                        if (y < m.Length - 1 && m[y + 1][x] == '-') m[y][x] = '-';
+                    }
+                }
+            }
+
+            for (int x = m[0].Length - 1; x >= 0; x--) { // right-left
+                for (int y = m.Length - 1; y >= 0; y--) {
+                    if (m[y][x] == ' ') {
+                        if (y > 0 && m[y - 1][x] == '-') m[y][x] = '-';
+                        if (y < m.Length - 1 && m[y + 1][x] == '-') m[y][x] = '-';
+                    }
+                }
+            }
+        }
+    }
+
+    private static void MarkTheEdges(char[][] m) {
+        int rounds = 2;
+        while (rounds-- > 0) {
+            for (int y = 0; y < m.Length; y++) { // down-up
+                for (int x = 0; x < m[y].Length; x++) {
+                    if (m[y][x] == '^') {
+                        if (x == 0 || !"#^".Contains(m[y][x - 1])) m[y][x] = '#';
+                        if (x == m[y].Length - 1 || !"#^".Contains(m[y][x + 1])) m[y][x] = '#';
+                    }
+                }
+            }
+            for (int x = 0; x < m[0].Length; x++) { // left-right
+                for (int y = 0; y < m.Length; y++) {
+                    if (m[y][x] == '^') {
+                        if (y == 0 || !"#^".Contains(m[y - 1][x])) m[y][x] = '#';
+                        if (y == m.Length - 1 || !"#^".Contains(m[y + 1][x])) m[y][x] = '#';
                     }
 
                 }
             }
         }
     }
+
+    private static void TrimMarkedEdges(char[][] m) {
+        for (int y = 0; y < m.Length; y++) { // down
+            for (int x = 0; x < m[y].Length; x++) {
+                if (m[y][x] == '#') m[y][x] = ' ';
+
+            }
+        }
+    }
+
+
 }

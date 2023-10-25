@@ -93,3 +93,8 @@ public class _3kyu_Help_the_general_decode_secret_enemy_messages {
         return response.ToString();
     }
 }
+
+static class Encoder {
+    // This method is proveded by the challenge author
+    public static string Encode(string str) => str;
+}

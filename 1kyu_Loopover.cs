@@ -134,9 +134,7 @@ UVWXY";
         return arr;
     }
 
-    private static List<List<char>> GetListFromBoard(string input) {
-        return JaggedArrayToList(GetArrayFromBoard(input));
-    }
+    private static List<List<char>> GetListFromBoard(string input) => JaggedArrayToList(GetArrayFromBoard(input));
 
     private static string GetStringFromBoard(char[][] arr) =>
         // Turns a jagged char array board into a string
@@ -145,12 +143,13 @@ UVWXY";
     private static string GetStringFromBoard(List<List<char>> arr) =>
         string.Join('\n', arr.Select(row => string.Concat(row)));
 
-    private static List<List<char>> JaggedArrayToList(char[][] arr) {
-        return arr.Select(row => row.ToList()).ToList();
-    }
+    private static List<List<char>> JaggedArrayToList(char[][] arr) => arr.Select(row => row.ToList()).ToList();
 
     // ---------- THE SOLUTION ----------
     public static List<string> Solve(char[][] mixedUpBoard, char[][] targetBoard) {
+
+        /*TestTheBoardClass(mixedUpBoard, targetBoard);
+        return null;*/
 
         Board theBoard = new(mixedUpBoard, targetBoard);
 
@@ -159,11 +158,14 @@ UVWXY";
         Console.WriteLine("mixedUpBoard:");
         theBoard.boardMatrix.PrintOut();
 
+        // Check if boards contains the same pieces
+        if (!theBoard.CheckIfBoardsTheSame()) throw new Exception("Boards contain different pieces!");
+
         // Assemble a square except the last col and row ----------------------------------
         // Phase 1
         for (int row = 0; row < theBoard.boardMatrixSize.LastRowPtr; row++) {
             for (int col = 0; col < theBoard.boardMatrixSize.LastColPtr; col++) {
-                Coords currentCoords = new Coords(row, col);
+                Coords currentCoords = new(row, col);
                 char targetPiece = theBoard.GetTargetPiece(currentCoords);
                 char currentPiece = theBoard.GetCurrentPiece(currentCoords);
                 // If the piece is on the right place, skip
@@ -204,7 +206,7 @@ UVWXY";
         char bottomRightTargetPiece = theBoard.targetMatrix.Last().Last();
         // For each piece in the target last col
         for (int row = 0; row <= theBoard.boardMatrixSize.LastRowPtr; row++) {
-            Coords currentCoords = new Coords(row, theBoard.boardMatrixSize.LastColPtr);
+            Coords currentCoords = new(row, theBoard.boardMatrixSize.LastColPtr);
             char targetPiece = theBoard.GetTargetPiece(currentCoords);
             char bottomRightCurrentPiece = theBoard.boardMatrix.Last().Last();
 
@@ -248,36 +250,44 @@ UVWXY";
 
         char bottomLeftTargetPiece = theBoard.targetMatrix.Last().First();
         // For each target piece on the last row
-        for (int col = 0; col < theBoard.boardMatrixSize.LastColPtr; col++) {
-            Coords currentCoords = new Coords(theBoard.boardMatrixSize.LastRowPtr, col);
+        for (int col = 0; col <= theBoard.boardMatrixSize.LastColPtr; col++) {
+            Coords currentCoords = new(theBoard.boardMatrixSize.LastRowPtr, col);
             char targetPiece = theBoard.GetTargetPiece(currentCoords);
+            char currentPiece = theBoard.GetCurrentPiece(currentCoords);
             Console.WriteLine("piece: " + targetPiece);
             // Check if solved
             if (theBoard.isSolved()) break;
-            // If first (usually 'U') continue
+
+            // If the piece is on the right place, continue
+            if (targetPiece == currentPiece) continue;
+
+            // If first (usually 'U') continue, it doesn't matter where it is
             if (targetPiece == bottomLeftTargetPiece) {
                 theBoard.FixBottomRow();
                 theBoard.boardMatrix.PrintOut();
                 continue;
             }
-            // Move the piece all the way to the right
-            theBoard.DragPieceAllTheWayToTheRight(targetPiece);
-            theBoard.boardMatrix.PrintOut();
-            // Last row 1 up
-            theBoard.DragPieceToLocation(targetPiece, new Coords(0, -1));
-            theBoard.boardMatrix.PrintOut();
+
+            if (theBoard.ThePieceIsOnTheRow(targetPiece, theBoard.boardMatrixSize.LastRowPtr)) {
+                // Move the piece all the way to the right
+                theBoard.DragPieceAllTheWayToTheRight(targetPiece);
+                theBoard.boardMatrix.PrintOut();
+                // Last row 1 up
+                theBoard.DragPieceToLocation(targetPiece, new Coords(-1, 0));
+                theBoard.boardMatrix.PrintOut();
+            }
             // Fix bottom row
             theBoard.FixBottomRow();
             theBoard.boardMatrix.PrintOut();
             // Move target place all the way to the right
             theBoard.DragTargetPieceAllTheWayToTheRight(targetPiece);
             theBoard.boardMatrix.PrintOut();
-            // Last row 1 down
-            theBoard.DragPieceToLocation(targetPiece, new Coords(0, 1));
+            // Last row 1 down (or the full down)
+            theBoard.DragPieceAllTheWayDown(targetPiece);
+            
             theBoard.boardMatrix.PrintOut();
-            // Fix bottom row
+            // Fix the row
             theBoard.FixBottomRow();
-
             theBoard.boardMatrix.PrintOut();
 
         }
@@ -306,8 +316,8 @@ UVWXY";
         public Coords(int _row, int _col) {
             row = _row; col = _col;
         }
-        public static Coords operator +(Coords a, Coords b) => new Coords(a.row + b.row, a.col + b.col);
-        public static Coords operator -(Coords a, Coords b) => new Coords(a.row - b.row, a.col - b.col);
+        public static Coords operator +(Coords a, Coords b) => new(a.row + b.row, a.col + b.col);
+        public static Coords operator -(Coords a, Coords b) => new(a.row - b.row, a.col - b.col);
 
         public override string ToString() => $"[{row}:{col}]";
     }
@@ -330,6 +340,12 @@ UVWXY";
                     row.Select((colItem, colIndex) => (colItem, (rowIndex, colIndex))))
                 .SelectMany(x => x).ToDictionary(x => x.Item1, x => new Coords(x.Item2.rowIndex, x.Item2.colIndex));
             boardMatrixSize = (boardMatrix.Count() - 1, boardMatrix.First().Count() - 1);
+        }
+
+        public bool CheckIfBoardsTheSame() {
+            if (boardMatrix is null || targetMatrix is null) throw new ArgumentException("boards are null yet!");
+            return boardMatrix.SelectMany(x => x).OrderBy(x => x).SequenceEqual(
+                targetMatrix.SelectMany(x => x).OrderBy(x => x));
         }
         public bool isSolved() =>
             // Checks if the board is completely solved
@@ -506,7 +522,7 @@ UVWXY";
 
     // ---------- Tests ----------
     public static void TestTheBoardClass(char[][] mixedUpBoard, char[][] solvedBoard) {
-        Board theBoard = new(mixedUpBoard, mixedUpBoard);
+        Board theBoard = new(mixedUpBoard, solvedBoard);
 
         /*        Console.WriteLine("solvedBoard:");
                 theBoard.targetMatrix.PrintOut(); */
@@ -515,8 +531,6 @@ UVWXY";
         theBoard.boardMatrix.PrintOut();
 
         Console.WriteLine("GetPieceCurrentPosition(R): " + theBoard.GetPieceCurrentPosition('R'));
-        Console.WriteLine("targetPositionsMap:");
-        theBoard.targetPositionsMap.PrintOut();
         Console.WriteLine("GetPieceTargetPosition(R): " + theBoard.GetPieceTargetPosition('R'));
 
         Console.WriteLine("Drag piece UP to location: A (-4,0)");
@@ -538,7 +552,7 @@ UVWXY";
         Console.WriteLine("Steps made:");
         theBoard.steps.PrintOut();
 
-        if (GetStringFromBoard(theBoard.targetMatrix) == GetStringFromBoard(theBoard.boardMatrix))
+        if (GetStringFromBoard(theBoard.boardMatrix) == GetStringFromBoard(mixedUpBoard))
             Console.WriteLine("The board is the same");
         else Console.WriteLine("Boards are DIFFERENT!!!");
 

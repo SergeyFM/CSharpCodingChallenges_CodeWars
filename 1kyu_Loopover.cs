@@ -88,12 +88,18 @@ public class _1kyu_Loopover {
 
     [TestMethod]
     public void Test() {
-        string mixedUpBoard =
+/*        string mixedUpBoard =
 @"XGJBA
-WUFHT
-QMNIS
-YVOLD
-CKEPR";
+YUFHT
+QMNIW
+SVOLD
+CKEPR";*/
+        string mixedUpBoard = /* Y  Was aready in the bottomRightCurrentPiece */
+@"DEABC
+FGHIJ
+KLMNO
+PQRST
+YVWXU";
 
         string solvedBoard =
 @"ABCDE
@@ -135,7 +141,7 @@ UVWXY";
         return arr.Select(row => row.ToList()).ToList();
     }
 
-     // ---------- THE SOLUTION ----------
+    // ---------- THE SOLUTION ----------
     public static List<string> Solve(char[][] mixedUpBoard, char[][] targetBoard) {
 
         Board theBoard = new(mixedUpBoard, targetBoard);
@@ -146,15 +152,14 @@ UVWXY";
         theBoard.boardMatrix.PrintOut();
 
         // Assemble a square except the last col and row ----------------------------------
+        // Phase 1
         for (int row = 0; row < theBoard.boardMatrixSize.LastRowPtr; row++) {
-            Console.WriteLine("\nRow: " + row);
             for (int col = 0; col < theBoard.boardMatrixSize.LastColPtr; col++) {
                 Coords currentCoords = new Coords(row, col);
                 char targetPiece = theBoard.GetTargetPiece(currentCoords);
                 char currentPiece = theBoard.GetCurrentPiece(currentCoords);
-                Console.WriteLine(targetPiece + ": ");
                 // If the piece is on the right place, skip
-                if (targetPiece == currentPiece) { Console.WriteLine("Already in the right place\n"); continue; }
+                if (targetPiece == currentPiece) continue;
                 // Check if the piece is on the current row
                 bool isOnTheRow = theBoard.ThePieceIsOnTheRow(targetPiece, row);
                 // If yes move it right to the end, down
@@ -171,13 +176,83 @@ UVWXY";
                 theBoard.DragPieceToRowN(targetPiece, row);
                 // Move it to the target place
                 theBoard.DragPieceToColN(targetPiece, col);
-
-                theBoard.boardMatrix.PrintOut();
             }
         }
-        
-        // Assemble the last col and row --------------------------------------------------
+        if (theBoard.isPhase1Solved()) {
+            Console.WriteLine("The board excluding the last row and col is solved:");
+            theBoard.boardMatrix.PrintOut();
+        }
+        else {
+            theBoard.boardMatrix.PrintOut();
+            Console.WriteLine("Phase 1 failed");
+            throw new InvalidOperationException("Phase 1 failed");
+        }
 
+        // Assemble the last col and row --------------------------------------------------
+        // Phase 2
+
+        // Assemble the last col
+        // Coords oneUpPos = second to last position in the target right col (usually 'T')
+        char oneUpPosTargetPiece = theBoard.targetMatrix.SkipLast(1).Last().Last();
+        char bottomRightTargetPiece = theBoard.targetMatrix.Last().Last();
+        Coords oneUpPosLocation = new Coords(theBoard.boardMatrixSize.LastRowPtr, theBoard.boardMatrixSize.LastColPtr);
+        // For each piece in the target last col
+        const char TEST_PIECE = 'Y';
+        for (int row = 0; row <= theBoard.boardMatrixSize.LastRowPtr; row++) {
+            Coords currentCoords = new Coords(row, theBoard.boardMatrixSize.LastColPtr);
+            char targetPiece = theBoard.GetTargetPiece(currentCoords);
+            char currentPiece = theBoard.GetCurrentPiece(currentCoords);
+            char bottomRightCurrentPiece = theBoard.boardMatrix.Last().Last();
+
+            Console.WriteLine("Row: " + row + " targetPiece: " + targetPiece);
+
+            // If the target piece is already in the bottomRigthCurrentPiece - move 1 up
+            if (targetPiece == bottomRightCurrentPiece) {
+                if (targetPiece != bottomRightTargetPiece)
+                    theBoard.DragPieceToLocation(targetPiece, new Coords(-1, 0));
+                Console.WriteLine("Was aready in the bottomRightCurrentPiece");
+                theBoard.boardMatrix.PrintOut();
+                continue;
+            }
+
+            // If the target piece is in the last row
+            // move it all the way to the right and on the oneUpPos
+            bool isOnTheLastRow = theBoard.ThePieceIsOnTheRow(targetPiece, theBoard.boardMatrixSize.LastRowPtr);
+            if (isOnTheLastRow) {
+                theBoard.DragPieceAllTheWayToTheRight(targetPiece);
+                if (targetPiece != bottomRightTargetPiece) // only if it is not the last piece
+                    theBoard.DragPieceToLocation(targetPiece, new Coords(-1, 0));
+                Console.WriteLine("Was on the last row");
+                theBoard.boardMatrix.PrintOut();
+                continue;
+            }
+            if (isOnTheLastRow == false) { // means it is on the last col
+                // if it is the last piece, just fix the col
+                if (targetPiece == bottomRightTargetPiece) {
+                    theBoard.FixTheLastCol();
+                    Console.WriteLine("The last piece was on the last col");
+                    theBoard.boardMatrix.PrintOut();
+                }
+                 //      move it all the way down
+                theBoard.DragPieceAllTheWayDown(targetPiece);
+                if (targetPiece == TEST_PIECE) theBoard.boardMatrix.PrintOut();
+                //      move it 1 left
+                theBoard.DragPieceToLocation(targetPiece, new Coords(0,-1));
+                if (targetPiece == TEST_PIECE) theBoard.boardMatrix.PrintOut();
+                //      move target piece on the col all the way down
+                theBoard.FixTheLastCol();
+                theBoard.DragTargetPieceAllTheWayDown(targetPiece);
+                if (targetPiece == TEST_PIECE) theBoard.boardMatrix.PrintOut();
+                //      move it 1 right
+                theBoard.DragPieceToLocation(targetPiece, new Coords(0,1));
+                if (targetPiece == TEST_PIECE) theBoard.boardMatrix.PrintOut();
+                //      move it 1 up
+                theBoard.DragPieceToLocation(targetPiece, new Coords(-1, 0));
+                Console.WriteLine("Was on the last col");
+                theBoard.boardMatrix.PrintOut();
+                continue;
+            }
+        }
 
 
         // Print out the results ----------------------------------------------------------
@@ -229,7 +304,14 @@ UVWXY";
                 .SelectMany(x => x).ToDictionary(x => x.Item1, x => new Coords(x.Item2.rowIndex, x.Item2.colIndex));
             boardMatrixSize = (boardMatrix.Count() - 1, boardMatrix.First().Count() - 1);
         }
-        public bool isSolved() => targetMatrix.SequenceEqual(boardMatrix);
+        public bool isSolved() =>
+            // Checks if the board is completely solved
+            targetMatrix.SelectMany(x => x).SequenceEqual(boardMatrix.SelectMany(x => x));
+
+        public bool isPhase1Solved() =>
+            // Checks if the board is solved except the last row and col
+            targetMatrix.SkipLast(1).Select(row => row.SkipLast(1)).SelectMany(x => x)
+            .SequenceEqual(boardMatrix.SkipLast(1).Select(row => row.SkipLast(1)).SelectMany(x => x));
 
         public Coords GetPieceCurrentPosition(char piece) =>
             // Returns current row&col of a piece on the board
@@ -238,13 +320,24 @@ UVWXY";
                 .Where(coord => coord.row != -1)
                 .First();
 
-        public Coords GetPieceTargetPosition(char piece) => 
+        public Coords GetPieceTargetPosition(char piece) =>
             // Returns target coordinates for a given piece
             targetPositionsMap[piece];
         public char GetTargetPiece(Coords c) => targetMatrix[c.row][c.col];
         public char GetCurrentPiece(Coords c) => boardMatrix[c.row][c.col];
 
         public bool ThePieceIsOnTheRow(char piece, int row) => boardMatrix[row].Contains(piece);
+        public bool ThePieceIsOnTheCol(char piece, int col) => boardMatrix.Select(row => row[col]).Contains(piece);
+
+        public List<char> GetTargetPiecesFromTheLastCol() => targetMatrix.Select(row => row.Last()).ToList();
+
+        public void FixTheLastCol() {
+            char theTopTargetPiece = targetMatrix.First().Last();
+            if (ThePieceIsOnTheCol(theTopTargetPiece, boardMatrixSize.LastColPtr)) {
+                // if the upper piece of the last col is there, move it up
+                DragPieceAllTheWayUp(theTopTargetPiece);
+            }
+        }
 
         public int DragPieceAllTheWayToTheRight(char piece) {
             Coords currCoords = GetPieceCurrentPosition(piece);
@@ -257,6 +350,24 @@ UVWXY";
             Coords targetCoords = GetPieceTargetPosition(piece);
             int distanceToTheRight = boardMatrixSize.LastColPtr - targetCoords.col;
             DragTargetPieceToLocation(piece, new Coords(0, distanceToTheRight));
+        }
+
+        public void DragPieceAllTheWayDown(char piece) {
+            Coords currCoords = GetPieceCurrentPosition(piece);
+            int distanceToTheDown = boardMatrixSize.LastRowPtr - currCoords.row;
+            DragPieceToLocation(piece, new Coords(distanceToTheDown,0));
+        }
+
+        public void DragPieceAllTheWayUp(char piece) {
+            Coords currCoords = GetPieceCurrentPosition(piece);
+            int distanceToTheUp = -currCoords.row;
+            DragPieceToLocation(piece, new Coords(distanceToTheUp, 0));
+        }
+
+        public void DragTargetPieceAllTheWayDown(char piece) {
+            Coords targetCoords = GetPieceTargetPosition(piece);
+            int distanceToTheDown = boardMatrixSize.LastRowPtr - targetCoords.row;
+            DragTargetPieceToLocation(piece, new Coords(distanceToTheDown,0));
         }
 
         public void DragTargetPieceToLocation(char piece, Coords movements) {
@@ -283,7 +394,7 @@ UVWXY";
             int distance = col - curCol;
             DragPieceToLocation(piece, new Coords(0, distance));
         }
-        
+
         public void DragLocation(Coords location, Coords movement) {
             // Move a row or a col of the board by dragging according to movement on the location
             // Movement shuld have only one direction, i.e. either row or col should be zero.

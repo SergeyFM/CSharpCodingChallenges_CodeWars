@@ -88,18 +88,26 @@ public class _1kyu_Loopover {
 
     [TestMethod]
     public void Test() {
-/*        string mixedUpBoard =
+        string mixedUpBoard =
 @"XGJBA
-YUFHT
+CUFHS
 QMNIW
-SVOLD
-CKEPR";*/
-        string mixedUpBoard = /* Y  Was aready in the bottomRightCurrentPiece */
-@"DEABC
-FGHIJ
-KLMNO
-PQRST
-YVWXU";
+DVOLT
+YKEPR";
+
+        /*        string mixedUpBoard = *//* Y  Was aready in the bottomRightCurrentPiece *//*
+        @"DEABC
+        FGHIJ
+        KLMNO
+        PQRST
+        YVWXU";*/
+
+        /*        string mixedUpBoard = *//* Y Was on the last row  *//*
+        @"DEABC
+        FGWIJ
+        KLUNO
+        PYRST
+        QVHXM";*/
 
         string solvedBoard =
 @"ABCDE
@@ -193,25 +201,17 @@ UVWXY";
 
         // Assemble the last col
         // Coords oneUpPos = second to last position in the target right col (usually 'T')
-        char oneUpPosTargetPiece = theBoard.targetMatrix.SkipLast(1).Last().Last();
         char bottomRightTargetPiece = theBoard.targetMatrix.Last().Last();
-        Coords oneUpPosLocation = new Coords(theBoard.boardMatrixSize.LastRowPtr, theBoard.boardMatrixSize.LastColPtr);
         // For each piece in the target last col
-        const char TEST_PIECE = 'Y';
         for (int row = 0; row <= theBoard.boardMatrixSize.LastRowPtr; row++) {
             Coords currentCoords = new Coords(row, theBoard.boardMatrixSize.LastColPtr);
             char targetPiece = theBoard.GetTargetPiece(currentCoords);
-            char currentPiece = theBoard.GetCurrentPiece(currentCoords);
             char bottomRightCurrentPiece = theBoard.boardMatrix.Last().Last();
-
-            Console.WriteLine("Row: " + row + " targetPiece: " + targetPiece);
 
             // If the target piece is already in the bottomRigthCurrentPiece - move 1 up
             if (targetPiece == bottomRightCurrentPiece) {
                 if (targetPiece != bottomRightTargetPiece)
                     theBoard.DragPieceToLocation(targetPiece, new Coords(-1, 0));
-                Console.WriteLine("Was aready in the bottomRightCurrentPiece");
-                theBoard.boardMatrix.PrintOut();
                 continue;
             }
 
@@ -222,41 +222,68 @@ UVWXY";
                 theBoard.DragPieceAllTheWayToTheRight(targetPiece);
                 if (targetPiece != bottomRightTargetPiece) // only if it is not the last piece
                     theBoard.DragPieceToLocation(targetPiece, new Coords(-1, 0));
-                Console.WriteLine("Was on the last row");
-                theBoard.boardMatrix.PrintOut();
                 continue;
             }
             if (isOnTheLastRow == false) { // means it is on the last col
-                // if it is the last piece, just fix the col
-                if (targetPiece == bottomRightTargetPiece) {
-                    theBoard.FixTheLastCol();
-                    Console.WriteLine("The last piece was on the last col");
-                    theBoard.boardMatrix.PrintOut();
-                }
-                 //      move it all the way down
+                theBoard.FixTheLastCol(); // set the right col correctly
+                if (targetPiece == bottomRightTargetPiece) continue; // the last one
+                // Move it all the way down
                 theBoard.DragPieceAllTheWayDown(targetPiece);
-                if (targetPiece == TEST_PIECE) theBoard.boardMatrix.PrintOut();
-                //      move it 1 left
-                theBoard.DragPieceToLocation(targetPiece, new Coords(0,-1));
-                if (targetPiece == TEST_PIECE) theBoard.boardMatrix.PrintOut();
-                //      move target piece on the col all the way down
+                // Move it 1 left
+                theBoard.DragPieceToLocation(targetPiece, new Coords(0, -1));
+                // Move target piece on the col all the way down
                 theBoard.FixTheLastCol();
                 theBoard.DragTargetPieceAllTheWayDown(targetPiece);
-                if (targetPiece == TEST_PIECE) theBoard.boardMatrix.PrintOut();
-                //      move it 1 right
-                theBoard.DragPieceToLocation(targetPiece, new Coords(0,1));
-                if (targetPiece == TEST_PIECE) theBoard.boardMatrix.PrintOut();
-                //      move it 1 up
+                // Move it 1 right
+                theBoard.DragPieceToLocation(targetPiece, new Coords(0, 1));
+                // Move it 1 up
                 theBoard.DragPieceToLocation(targetPiece, new Coords(-1, 0));
-                Console.WriteLine("Was on the last col");
-                theBoard.boardMatrix.PrintOut();
                 continue;
             }
         }
 
+        Console.WriteLine("Board except the last row:");
+        theBoard.boardMatrix.PrintOut();
+        // Assemble the last col
+
+        char bottomLeftTargetPiece = theBoard.targetMatrix.Last().First();
+        // For each target piece on the last row
+        for (int col = 0; col < theBoard.boardMatrixSize.LastColPtr; col++) {
+            Coords currentCoords = new Coords(theBoard.boardMatrixSize.LastRowPtr, col);
+            char targetPiece = theBoard.GetTargetPiece(currentCoords);
+            Console.WriteLine("piece: " + targetPiece);
+            // Check if solved
+            if (theBoard.isSolved()) break;
+            // If first (usually 'U') continue
+            if (targetPiece == bottomLeftTargetPiece) {
+                theBoard.FixBottomRow();
+                theBoard.boardMatrix.PrintOut();
+                continue;
+            }
+            // Move the piece all the way to the right
+            theBoard.DragPieceAllTheWayToTheRight(targetPiece);
+            theBoard.boardMatrix.PrintOut();
+            // Last row 1 up
+            theBoard.DragPieceToLocation(targetPiece, new Coords(0, -1));
+            theBoard.boardMatrix.PrintOut();
+            // Fix bottom row
+            theBoard.FixBottomRow();
+            theBoard.boardMatrix.PrintOut();
+            // Move target place all the way to the right
+            theBoard.DragTargetPieceAllTheWayToTheRight(targetPiece);
+            theBoard.boardMatrix.PrintOut();
+            // Last row 1 down
+            theBoard.DragPieceToLocation(targetPiece, new Coords(0, 1));
+            theBoard.boardMatrix.PrintOut();
+            // Fix bottom row
+            theBoard.FixBottomRow();
+
+            theBoard.boardMatrix.PrintOut();
+
+        }
 
         // Print out the results ----------------------------------------------------------
-        Console.WriteLine("\n");
+        Console.WriteLine("----------------------------------------------------------");
 
         Console.WriteLine("Resulting board:");
         theBoard.boardMatrix.PrintOut();
@@ -339,6 +366,20 @@ UVWXY";
             }
         }
 
+        public void FixBottomRow() {
+            char bottomLeftTargetPiece = targetMatrix.Last().First();
+            if (ThePieceIsOnTheRow(bottomLeftTargetPiece, boardMatrixSize.LastColPtr)) {
+                // if we find the fires piece of the row
+                DragPieceAllTheWayToTheLeft(bottomLeftTargetPiece);
+            }
+        }
+
+        public void DragPieceAllTheWayToTheLeft(char piece) {
+            Coords currCoords = GetPieceCurrentPosition(piece);
+            int distanceToTheLeft = -currCoords.col;
+            DragPieceToLocation(piece, new Coords(0, distanceToTheLeft));
+        }
+
         public int DragPieceAllTheWayToTheRight(char piece) {
             Coords currCoords = GetPieceCurrentPosition(piece);
             int distanceToTheRight = boardMatrixSize.LastRowPtr - currCoords.col;
@@ -355,7 +396,7 @@ UVWXY";
         public void DragPieceAllTheWayDown(char piece) {
             Coords currCoords = GetPieceCurrentPosition(piece);
             int distanceToTheDown = boardMatrixSize.LastRowPtr - currCoords.row;
-            DragPieceToLocation(piece, new Coords(distanceToTheDown,0));
+            DragPieceToLocation(piece, new Coords(distanceToTheDown, 0));
         }
 
         public void DragPieceAllTheWayUp(char piece) {
@@ -367,7 +408,7 @@ UVWXY";
         public void DragTargetPieceAllTheWayDown(char piece) {
             Coords targetCoords = GetPieceTargetPosition(piece);
             int distanceToTheDown = boardMatrixSize.LastRowPtr - targetCoords.row;
-            DragTargetPieceToLocation(piece, new Coords(distanceToTheDown,0));
+            DragTargetPieceToLocation(piece, new Coords(distanceToTheDown, 0));
         }
 
         public void DragTargetPieceToLocation(char piece, Coords movements) {

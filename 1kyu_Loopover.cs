@@ -201,96 +201,22 @@ UVWXY";
         // Assemble the last col and row --------------------------------------------------
         // Phase 2
 
-        // Assemble the last col
-        // Coords oneUpPos = second to last position in the target right col (usually 'T')
-        char bottomRightTargetPiece = theBoard.targetMatrix.Last().Last();
-        // For each piece in the target last col
-        for (int row = 0; row <= theBoard.boardMatrixSize.LastRowPtr; row++) {
-            Coords currentCoords = new(row, theBoard.boardMatrixSize.LastColPtr);
-            char targetPiece = theBoard.GetTargetPiece(currentCoords);
-            char bottomRightCurrentPiece = theBoard.boardMatrix.Last().Last();
+        // BottomRight
+        // BottomSecondToRight
+        // RightSecondToBottom
 
-            // If the target piece is already in the bottomRigthCurrentPiece - move 1 up
-            if (targetPiece == bottomRightCurrentPiece) {
-                if (targetPiece != bottomRightTargetPiece)
-                    theBoard.DragPieceToLocation(targetPiece, new Coords(-1, 0));
-                continue;
-            }
+        // Make a list (R,C), (R,C), ..., (R,C) --> UE, VJ, WO, XT, ... /YY/
+        // R - bottom row
+        // If in the col except the last -> all the way down, reDoCol = true
+        // If not on the BottomRight, All the way right
+        // 1 left
+        // 
+        // C - right column
+        // If in the row except the last -> all the way right, reDoRow = true
+        // If not on the BottomRight, All the way down
+        // 1 up
+        // If redoRow, All the way right, 1 left (R)
 
-            // If the target piece is in the last row
-            // move it all the way to the right and on the oneUpPos
-            bool isOnTheLastRow = theBoard.ThePieceIsOnTheRow(targetPiece, theBoard.boardMatrixSize.LastRowPtr);
-            if (isOnTheLastRow) {
-                theBoard.DragPieceAllTheWayToTheRight(targetPiece);
-                if (targetPiece != bottomRightTargetPiece) // only if it is not the last piece
-                    theBoard.DragPieceToLocation(targetPiece, new Coords(-1, 0));
-                continue;
-            }
-            if (isOnTheLastRow == false) { // means it is on the last col
-                theBoard.FixTheLastCol(); // set the right col correctly
-                if (targetPiece == bottomRightTargetPiece) continue; // the last one
-                // Move it all the way down
-                theBoard.DragPieceAllTheWayDown(targetPiece);
-                // Move it 1 left
-                theBoard.DragPieceToLocation(targetPiece, new Coords(0, -1));
-                // Move target piece on the col all the way down
-                theBoard.FixTheLastCol();
-                theBoard.DragTargetPieceAllTheWayDown(targetPiece);
-                // Move it 1 right
-                theBoard.DragPieceToLocation(targetPiece, new Coords(0, 1));
-                // Move it 1 up
-                theBoard.DragPieceToLocation(targetPiece, new Coords(-1, 0));
-                continue;
-            }
-        }
-
-        Console.WriteLine("Board except the last row:");
-        theBoard.boardMatrix.PrintOut();
-        // Assemble the last col
-
-        char bottomLeftTargetPiece = theBoard.targetMatrix.Last().First();
-        // For each target piece on the last row
-        for (int col = 0; col <= theBoard.boardMatrixSize.LastColPtr; col++) {
-            Coords currentCoords = new(theBoard.boardMatrixSize.LastRowPtr, col);
-            char targetPiece = theBoard.GetTargetPiece(currentCoords);
-            char currentPiece = theBoard.GetCurrentPiece(currentCoords);
-            Console.WriteLine("piece: " + targetPiece);
-            // Check if solved
-            if (theBoard.isSolved()) break;
-
-            // If the piece is on the right place, continue
-            if (targetPiece == currentPiece) continue;
-
-            // If first (usually 'U') continue, it doesn't matter where it is
-            if (targetPiece == bottomLeftTargetPiece) {
-                theBoard.FixBottomRow();
-                theBoard.boardMatrix.PrintOut();
-                continue;
-            }
-
-            if (theBoard.ThePieceIsOnTheRow(targetPiece, theBoard.boardMatrixSize.LastRowPtr)) {
-                // Move the piece all the way to the right
-                theBoard.DragPieceAllTheWayToTheRight(targetPiece);
-                theBoard.boardMatrix.PrintOut();
-                // Last row 1 up
-                theBoard.DragPieceToLocation(targetPiece, new Coords(-1, 0));
-                theBoard.boardMatrix.PrintOut();
-            }
-            // Fix bottom row
-            theBoard.FixBottomRow();
-            theBoard.boardMatrix.PrintOut();
-            // Move target place all the way to the right
-            theBoard.DragTargetPieceAllTheWayToTheRight(targetPiece);
-            theBoard.boardMatrix.PrintOut();
-            // Last row 1 down (or the full down)
-            theBoard.DragPieceAllTheWayDown(targetPiece);
-            
-            theBoard.boardMatrix.PrintOut();
-            // Fix the row
-            theBoard.FixBottomRow();
-            theBoard.boardMatrix.PrintOut();
-
-        }
 
         // Print out the results ----------------------------------------------------------
         Console.WriteLine("----------------------------------------------------------");
@@ -579,5 +505,15 @@ static class Extensions {
         Console.WriteLine("Count: " + dic.Count);
         foreach (KeyValuePair<char, TValue> ent in dic) Console.WriteLine($"{ent.Key} -> {ent.Value}");
         Console.WriteLine();
+    }
+
+    public static List<List<char>> FullClone(this List<List<char>> arr) {
+        List<List<char>> tmp = new();
+        foreach (List<char> row in arr) {
+            List<char> tmpCharList = new();
+            foreach (char c in row) tmpCharList.Add(c);
+            tmp.Add(tmpCharList);
+        }
+        return tmp;
     }
 }

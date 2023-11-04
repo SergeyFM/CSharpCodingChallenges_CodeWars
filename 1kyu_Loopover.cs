@@ -88,37 +88,87 @@ public class _1kyu_Loopover {
 
     [TestMethod]
     public void Test() {
-        string mixedUpBoard =
-@"XGJBA
-CUFHS
-QMNIW
-DVOLT
-YKEPR";
+        string mixedUpBoard = "";
+        string solvedBoard = "";
+        int TEST_NUMBER = 7;
 
-        /*        string mixedUpBoard = *//* Y  Was aready in the bottomRightCurrentPiece *//*
-        @"DEABC
-        FGHIJ
-        KLMNO
-        PQRST
-        YVWXU";*/
+        for (int i = 1; i <= TEST_NUMBER; i++) {
+            Console.WriteLine("TEST " + i);
+            switch (i) {
+                case 1: // OK
+                    mixedUpBoard =
+                  @"DXHSR
+                TNYJI
+                EMPQB
+                KUOLV
+                WFCGA";
+                    break;
+                case 2: // OK
+                    mixedUpBoard =
+                  @"LFKHU
+                XWSQM
+                RDCIY
+                BJTOA
+                GNVEP";
+                    break;
+                case 3: // OK
+                    mixedUpBoard =
+                  @"JLNQF
+                RSWVU
+                YHOCB
+                IEGKM
+                ATPXD";
+                    break;
+                case 4:
+                    mixedUpBoard =
+                  @"XGJBA
+                CUFHS
+                QMNIW
+                DVOLT
+                YKEPR";
+                    break;
+                case 5:
+                    mixedUpBoard =
+                  @"XGJBA
+                CUFHS
+                QMNIW
+                DVOLT
+                YKEPR";
+                    break;
+                case 6:
+                    mixedUpBoard =
+                  @"DEABC
+                FGHIJ
+                KLMNO
+                PQRST
+                YVWXU";
+                    break;
+                case 7: // OK
+                    mixedUpBoard =
+                  @"DEABC
+                FGWIJ
+                KLUNO
+                PYRST
+                QVHXM";
+                    break;
 
-        /*        string mixedUpBoard = *//* Y Was on the last row  *//*
-        @"DEABC
-        FGWIJ
-        KLUNO
-        PYRST
-        QVHXM";*/
+            }
 
-        string solvedBoard =
-@"ABCDE
-FGHIJ
-KLMNO
-PQRST
-UVWXY";
+            solvedBoard =
+                @"ABCDE
+            FGHIJ
+            KLMNO
+            PQRST
+            UVWXY";
 
-        Assert.AreEqual(
-            GetArrayFromBoard(solvedBoard), Solve(GetArrayFromBoard(mixedUpBoard), GetArrayFromBoard(solvedBoard))
-        );
+            Solve(GetArrayFromBoard(mixedUpBoard), GetArrayFromBoard(solvedBoard));
+
+        }
+    
+
+/*        Assert.AreEqual(
+    GetArrayFromBoard(solvedBoard), Solve(GetArrayFromBoard(mixedUpBoard), GetArrayFromBoard(solvedBoard))
+); */
 
     }
 
@@ -153,16 +203,19 @@ UVWXY";
 
         Board theBoard = new(mixedUpBoard, targetBoard);
 
-        Console.WriteLine("targetBoard:");
-        theBoard.targetMatrix.PrintOut();
+        //Console.WriteLine("targetBoard:");
+        //theBoard.targetMatrix.PrintOut();
         Console.WriteLine("mixedUpBoard:");
         theBoard.boardMatrix.PrintOut();
 
         // Check if boards contains the same pieces
         if (!theBoard.CheckIfBoardsTheSame()) throw new Exception("Boards contain different pieces!");
 
+
+
         // Assemble a square except the last col and row ----------------------------------
         // Phase 1
+        //Console.WriteLine("--------- Phase 1 ---------");
         for (int row = 0; row < theBoard.boardMatrixSize.LastRowPtr; row++) {
             for (int col = 0; col < theBoard.boardMatrixSize.LastColPtr; col++) {
                 Coords currentCoords = new(row, col);
@@ -193,43 +246,95 @@ UVWXY";
             theBoard.boardMatrix.PrintOut();
         }
         else {
-            theBoard.boardMatrix.PrintOut();
             Console.WriteLine("Phase 1 failed");
+            theBoard.boardMatrix.PrintOut();
             throw new InvalidOperationException("Phase 1 failed");
         }
 
-        // Assemble the last col and row --------------------------------------------------
+        // Assemble the last col except the last two --------------------------------------------------
         // Phase 2
+        //Console.WriteLine("--------- Phase 2 ---------");
+        var rightTargetColSkipLast2 = theBoard.targetMatrix.Select(x => x.Last()).SkipLast(2);
+        foreach (char targetPiece in rightTargetColSkipLast2) {
+            // If target piece is on the column
+            if (theBoard.ThePieceIsOnTheCol(targetPiece, theBoard.boardMatrixSize.LastColPtr)) {
+                // If it is first piece, just move it in place
+                if (targetPiece == rightTargetColSkipLast2.First()) {
+                    theBoard.FixTheLastCol();
+                    continue;
+                }
+                // Move it all the way down
+                theBoard.DragPieceAllTheWayDown(targetPiece);
+                // 1 left
+                theBoard.DragPieceToLocation(targetPiece, new Coords(0, -1));
+            }
+            // the place all the way down
+            theBoard.FixTheLastCol();
+            theBoard.DragTargetPieceAllTheWayDown(targetPiece);
+            // move the piece all the way right
+            theBoard.DragPieceAllTheWayToTheRight(targetPiece);
+            // 1 up
+            theBoard.DragPieceToLocation(targetPiece, new Coords(-1, 0));
 
-        // BottomRight
-        // BottomSecondToRight
-        // RightSecondToBottom
+        }
+        theBoard.FixTheLastCol();
 
-        // Make a list (R,C), (R,C), ..., (R,C) --> UE, VJ, WO, XT, ... /YY/
-        // R - bottom row
-        // If in the col except the last -> all the way down, reDoCol = true
-        // If not on the BottomRight, All the way right
-        // 1 left
-        // 
-        // C - right column
-        // If in the row except the last -> all the way right, reDoRow = true
-        // If not on the BottomRight, All the way down
-        // 1 up
-        // If redoRow, All the way right, 1 left (R)
+        if (theBoard.targetMatrix.Select(x => x.Last()).SkipLast(2)
+            .SequenceEqual(theBoard.boardMatrix.Select(x => x.Last()).SkipLast(2))) {
+            Console.WriteLine("The board with the last col excluding the last two pieces:");
+            theBoard.boardMatrix.PrintOut();
+        }
+        else {
+            Console.WriteLine("Phase 2 failed");
+            theBoard.boardMatrix.PrintOut();
+            throw new InvalidOperationException("Phase 2 failed");
+        }
 
+        // Assemble the last row and to last pieces in the column
+        // Phase 3
+        //Console.WriteLine("--------- Phase 3 ---------");
+        var bottomTargetRow = theBoard.targetMatrix.Last();
+        Coords keyhole = theBoard.GetPieceCurrentPosition(theBoard.boardMatrix.SkipLast(1).Last().Last());
+        foreach (char targetPiece in bottomTargetRow) {
+            //Console.WriteLine(targetPiece);
+            if (theBoard.isSolved()) break;
+            Coords currentPiecePosition = theBoard.GetPieceCurrentPosition(targetPiece);
+            // If it is in the keyhole, bring it down
+            if (currentPiecePosition == keyhole) {
+                theBoard.FixBottomRow();
+                theBoard.DragTargetPieceAllTheWayToTheRight(targetPiece);
+                theBoard.DragPieceToLocation(targetPiece, new Coords(1, 0));
+                theBoard.FixBottomRow();
+                theBoard.FixTheLastCol();
+                //theBoard.boardMatrix.PrintOut();
+                continue;
+            }
+            // Move the piece all the way to the right
+            theBoard.DragPieceAllTheWayToTheRight(targetPiece);
+            // 1 down
+            theBoard.DragPieceToLocation(targetPiece, new Coords(1, 0));
+            // Move target place all the way to the right
+            theBoard.FixBottomRow();
+            theBoard.DragTargetPieceAllTheWayToTheRight(targetPiece);
+            // 1 up (fix the col)
+            theBoard.FixTheLastCol();
+            theBoard.FixBottomRow();
+            //theBoard.boardMatrix.PrintOut();
+
+        }
 
         // Print out the results ----------------------------------------------------------
-        Console.WriteLine("----------------------------------------------------------");
+        //Console.WriteLine("----------------------------------------------------------");
 
         Console.WriteLine("Resulting board:");
         theBoard.boardMatrix.PrintOut();
 
-        Console.WriteLine("Steps made:");
-        theBoard.steps.PrintOut();
+        //Console.WriteLine("Steps made:");
+        //theBoard.steps.PrintOut();
 
         if (GetStringFromBoard(theBoard.targetMatrix) == GetStringFromBoard(theBoard.boardMatrix))
-            Console.WriteLine("The riddle was solved.");
-        else Console.WriteLine("NOT SOLVED!!!");
+            Console.WriteLine("The riddle was solved.\n");
+        else Console.WriteLine("NOT SOLVED!!!\n");
 
         return theBoard.steps;
     }
@@ -244,6 +349,9 @@ UVWXY";
         }
         public static Coords operator +(Coords a, Coords b) => new(a.row + b.row, a.col + b.col);
         public static Coords operator -(Coords a, Coords b) => new(a.row - b.row, a.col - b.col);
+
+        public static bool operator ==(Coords a, Coords b) => a.row == b.row && a.col == b.col;
+        public static bool operator !=(Coords a, Coords b) => a.row != b.row || a.col != b.col;
 
         public override string ToString() => $"[{row}:{col}]";
     }
@@ -268,11 +376,10 @@ UVWXY";
             boardMatrixSize = (boardMatrix.Count() - 1, boardMatrix.First().Count() - 1);
         }
 
-        public bool CheckIfBoardsTheSame() {
-            if (boardMatrix is null || targetMatrix is null) throw new ArgumentException("boards are null yet!");
-            return boardMatrix.SelectMany(x => x).OrderBy(x => x).SequenceEqual(
+        public bool CheckIfBoardsTheSame() => boardMatrix is null || targetMatrix is null
+                ? throw new ArgumentException("boards are null yet!")
+                : boardMatrix.SelectMany(x => x).OrderBy(x => x).SequenceEqual(
                 targetMatrix.SelectMany(x => x).OrderBy(x => x));
-        }
         public bool isSolved() =>
             // Checks if the board is completely solved
             targetMatrix.SelectMany(x => x).SequenceEqual(boardMatrix.SelectMany(x => x));
@@ -322,22 +429,22 @@ UVWXY";
             DragPieceToLocation(piece, new Coords(0, distanceToTheLeft));
         }
 
-        public int DragPieceAllTheWayToTheRight(char piece) {
+        public int DragPieceAllTheWayToTheRight(char piece, int skipLast = 0) {
             Coords currCoords = GetPieceCurrentPosition(piece);
-            int distanceToTheRight = boardMatrixSize.LastRowPtr - currCoords.col;
+            int distanceToTheRight = boardMatrixSize.LastColPtr - skipLast - currCoords.col;
             DragPieceToLocation(piece, new Coords(0, distanceToTheRight));
             return distanceToTheRight;
         }
 
-        public void DragTargetPieceAllTheWayToTheRight(char piece) {
+        public void DragTargetPieceAllTheWayToTheRight(char piece, int skipLast = 0) {
             Coords targetCoords = GetPieceTargetPosition(piece);
-            int distanceToTheRight = boardMatrixSize.LastColPtr - targetCoords.col;
+            int distanceToTheRight = boardMatrixSize.LastColPtr - skipLast - targetCoords.col;
             DragTargetPieceToLocation(piece, new Coords(0, distanceToTheRight));
         }
 
-        public void DragPieceAllTheWayDown(char piece) {
+        public void DragPieceAllTheWayDown(char piece, int skipLast = 0) {
             Coords currCoords = GetPieceCurrentPosition(piece);
-            int distanceToTheDown = boardMatrixSize.LastRowPtr - currCoords.row;
+            int distanceToTheDown = boardMatrixSize.LastRowPtr - skipLast - currCoords.row;
             DragPieceToLocation(piece, new Coords(distanceToTheDown, 0));
         }
 

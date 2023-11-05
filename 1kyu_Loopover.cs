@@ -90,7 +90,7 @@ public class _1kyu_Loopover {
     public void Test() {
         string mixedUpBoard = "";
         string solvedBoard = "";
-        int TEST_NUMBER = 7;
+        int TEST_NUMBER = 8;
 
         for (int i = 1; i <= TEST_NUMBER; i++) {
             Console.WriteLine("TEST " + i);
@@ -151,7 +151,14 @@ public class _1kyu_Loopover {
                 PYRST
                 QVHXM";
                     break;
-
+                case 8: // OK
+                    mixedUpBoard =
+                  @"MIFGQ
+                JSPCW
+                TEDAB
+                RLHOK
+                YNUXV";
+                    break;
             }
 
             solvedBoard =
@@ -172,34 +179,8 @@ public class _1kyu_Loopover {
 
     }
 
-    // ---------- Helper functions ----------
-    private static char[][] GetArrayFromBoard(string input) {
-        // Turns a string representation of the board into a jagged char array
-        string[] rows = input.Split('\n');
-        char[][] arr = new char[rows.Length][];
-        for (int i = 0; i < rows.Length; i++) {
-            char[] rowArr = rows[i].Trim().ToCharArray();
-            arr[i] = rowArr;
-        }
-        return arr;
-    }
-
-    private static List<List<char>> GetListFromBoard(string input) => JaggedArrayToList(GetArrayFromBoard(input));
-
-    private static string GetStringFromBoard(char[][] arr) =>
-        // Turns a jagged char array board into a string
-        string.Join('\n', arr.Select(row => string.Concat(row)));
-
-    private static string GetStringFromBoard(List<List<char>> arr) =>
-        string.Join('\n', arr.Select(row => string.Concat(row)));
-
-    private static List<List<char>> JaggedArrayToList(char[][] arr) => arr.Select(row => row.ToList()).ToList();
-
     // ---------- THE SOLUTION ----------
     public static List<string> Solve(char[][] mixedUpBoard, char[][] targetBoard) {
-
-        /*TestTheBoardClass(mixedUpBoard, targetBoard);
-        return null;*/
 
         Board theBoard = new(mixedUpBoard, targetBoard);
 
@@ -210,8 +191,6 @@ public class _1kyu_Loopover {
 
         // Check if boards contains the same pieces
         if (!theBoard.CheckIfBoardsTheSame()) throw new Exception("Boards contain different pieces!");
-
-
 
         // Assemble a square except the last col and row ----------------------------------
         // Phase 1
@@ -324,7 +303,6 @@ public class _1kyu_Loopover {
         }
 
         // Print out the results ----------------------------------------------------------
-        //Console.WriteLine("----------------------------------------------------------");
 
         Console.WriteLine("Resulting board:");
         theBoard.boardMatrix.PrintOut();
@@ -553,44 +531,28 @@ public class _1kyu_Loopover {
 
     }
 
-    // ---------- Tests ----------
-    public static void TestTheBoardClass(char[][] mixedUpBoard, char[][] solvedBoard) {
-        Board theBoard = new(mixedUpBoard, solvedBoard);
-
-        /*        Console.WriteLine("solvedBoard:");
-                theBoard.targetMatrix.PrintOut(); */
-
-        Console.WriteLine("mixedUpBoard:");
-        theBoard.boardMatrix.PrintOut();
-
-        Console.WriteLine("GetPieceCurrentPosition(R): " + theBoard.GetPieceCurrentPosition('R'));
-        Console.WriteLine("GetPieceTargetPosition(R): " + theBoard.GetPieceTargetPosition('R'));
-
-        Console.WriteLine("Drag piece UP to location: A (-4,0)");
-        theBoard.DragPieceToLocation('A', new Coords(-4, 0));
-        theBoard.boardMatrix.PrintOut();
-
-        Console.WriteLine("Drag piece DOWN to location: A (4,0)");
-        theBoard.DragPieceToLocation('A', new Coords(4, 0));
-        theBoard.boardMatrix.PrintOut();
-
-        Console.WriteLine("Drag piece LEFT to location: A (0,-4)");
-        theBoard.DragPieceToLocation('A', new Coords(0, -4));
-        theBoard.boardMatrix.PrintOut();
-
-        Console.WriteLine("Drag piece RIGHT to location: A (0,4)");
-        theBoard.DragPieceToLocation('A', new Coords(0, 4));
-        theBoard.boardMatrix.PrintOut();
-
-        Console.WriteLine("Steps made:");
-        theBoard.steps.PrintOut();
-
-        if (GetStringFromBoard(theBoard.boardMatrix) == GetStringFromBoard(mixedUpBoard))
-            Console.WriteLine("The board is the same");
-        else Console.WriteLine("Boards are DIFFERENT!!!");
-
+    // ---------- Helper functions ----------
+    private static char[][] GetArrayFromBoard(string input) {
+        // Turns a string representation of the board into a jagged char array
+        string[] rows = input.Split('\n');
+        char[][] arr = new char[rows.Length][];
+        for (int i = 0; i < rows.Length; i++) {
+            char[] rowArr = rows[i].Trim().ToCharArray();
+            arr[i] = rowArr;
+        }
+        return arr;
     }
 
+    private static List<List<char>> GetListFromBoard(string input) => JaggedArrayToList(GetArrayFromBoard(input));
+
+    private static string GetStringFromBoard(char[][] arr) =>
+        // Turns a jagged char array board into a string
+        string.Join('\n', arr.Select(row => string.Concat(row)));
+
+    private static string GetStringFromBoard(List<List<char>> arr) =>
+        string.Join('\n', arr.Select(row => string.Concat(row)));
+
+    private static List<List<char>> JaggedArrayToList(char[][] arr) => arr.Select(row => row.ToList()).ToList();
 }
 
 // ---------- Extensions ----------

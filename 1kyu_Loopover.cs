@@ -96,10 +96,9 @@ public class _1kyu_Loopover {
             PQRST
             UVWXY";
 
-        Console.WriteLine("Target board: \n"
-            + string.Join("\n", solvedBoard.Split().Select(x => x.Trim()).Where(x => x.Length > 1)) + "\n");
+        Console.WriteLine("Target board: \n" + string.Join("\n", solvedBoard.Split().Select(x => x.Trim()).Where(x => x.Length > 1)) + "\n");
 
-        int TEST_NUMBER = 8;
+        int TEST_NUMBER = 10;
 
         for (int i = 1; i <= TEST_NUMBER; i++) {
             Console.WriteLine("TEST " + i);
@@ -168,6 +167,47 @@ public class _1kyu_Loopover {
                 RLHOK
                 YNUXV";
                     break;
+                case 9: // OK
+                    mixedUpBoard =
+                @"4RV3T
+                K19bW
+                0NhBH
+                AYcL2
+                fgZQG
+                OeFEi
+                dXSUM
+                DP75J
+                6aIC8";
+                    solvedBoard =
+                        @"ABCDE
+                FGHIJ
+                KLMNO
+                PQRST
+                UVWXY
+                Z0123
+                45678
+                9abcd
+                efghi";
+                    Console.WriteLine("Target board: \n" + string.Join("\n", solvedBoard.Split().Select(x => x.Trim()).Where(x => x.Length > 1)) + "\n");
+
+                    break;
+                case 10: // OK
+                    mixedUpBoard =
+                @"7Bb2QFe
+                13DVNYd
+                fP69XJ4
+                EOGHAca
+                M8ZTUCW
+                K5ISLR0";
+                    solvedBoard =
+                        @"ABCDEFG
+                HIJKLMN
+                OPQRSTU
+                VWXYZ01
+                2345678
+                9abcdef";
+                    Console.WriteLine("Target board: \n" + string.Join("\n", solvedBoard.Split().Select(x => x.Trim()).Where(x => x.Length > 1)) + "\n");
+                    break;
             }
 
 
@@ -187,8 +227,6 @@ public class _1kyu_Loopover {
 
         Board theBoard = new(mixedUpBoard, targetBoard);
 
-        //Console.WriteLine("targetBoard:");
-        //theBoard.targetMatrix.PrintOut();
         Console.WriteLine("mixedUpBoard:");
         theBoard.boardMatrix.PrintOut();
 
@@ -201,9 +239,9 @@ public class _1kyu_Loopover {
         Coords moveRight = new(0, 1);
         Coords keyhole = theBoard.GetPieceCurrentPosition(theBoard.boardMatrix.SkipLast(1).Last().Last());
         Coords bottomRight = theBoard.GetPieceCurrentPosition(theBoard.boardMatrix.Last().Last());
+
         // Assemble a square except the last col and row ----------------------------------
         // Phase 1
-        //Console.WriteLine("--------- Phase 1 ---------");
         for (int row = 0; row < theBoard.boardMatrixSize.LastRowPtr; row++) {
             for (int col = 0; col < theBoard.boardMatrixSize.LastColPtr; col++) {
                 Coords currentCoords = new(row, col);
@@ -216,7 +254,7 @@ public class _1kyu_Loopover {
                 // If yes move it right to the end, down
                 if (isOnTheRow) {
                     int resultingShift = theBoard.DragPieceAllTheWayToTheRight(targetPiece);
-                    theBoard.DragPieceToLocation(targetPiece, new Coords(1, 0));
+                    theBoard.DragPieceToLocation(targetPiece, moveDown);
                     theBoard.DragLocation(currentCoords, new Coords(0, -resultingShift));
                 }
                 // Move target place to the last col
@@ -229,20 +267,10 @@ public class _1kyu_Loopover {
                 theBoard.DragPieceToColN(targetPiece, col);
             }
         }
-        if (theBoard.isPhase1Solved()) {
-            Console.WriteLine("The board excluding the last row and col is solved:");
-            theBoard.boardMatrix.PrintOut();
-        }
-        else {
-            Console.WriteLine("Phase 1 failed");
-            theBoard.boardMatrix.PrintOut();
-            throw new InvalidOperationException("Phase 1 failed");
-        }
 
         // Assemble the last col --------------------------------------------------
         // Phase 2
-        //Console.WriteLine("--------- Phase 2 ---------");
-        var rightTargetColSkipLast2 = theBoard.targetMatrix.Select(x => x.Last());//.SkipLast(2);
+        var rightTargetColSkipLast2 = theBoard.targetMatrix.Select(x => x.Last());
         foreach (char targetPiece in rightTargetColSkipLast2) {
             // If target piece is on the column
             if (theBoard.ThePieceIsOnTheCol(targetPiece, theBoard.boardMatrixSize.LastColPtr)) {
@@ -254,7 +282,7 @@ public class _1kyu_Loopover {
                 // Move it all the way down
                 theBoard.DragPieceAllTheWayDown(targetPiece);
                 // 1 left
-                theBoard.DragPieceToLocation(targetPiece, new Coords(0, -1));
+                theBoard.DragPieceToLocation(targetPiece, moveLeft);
             }
             // the place all the way down
             theBoard.FixTheLastCol();
@@ -262,76 +290,47 @@ public class _1kyu_Loopover {
             // move the piece all the way right
             theBoard.DragPieceAllTheWayToTheRight(targetPiece);
             // 1 up
-            theBoard.DragPieceToLocation(targetPiece, new Coords(-1, 0));
+            theBoard.DragPieceToLocation(targetPiece, moveUp);
 
         }
         theBoard.FixTheLastCol();
 
-        if (theBoard.targetMatrix.Select(x => x.Last()).SkipLast(2)
-            .SequenceEqual(theBoard.boardMatrix.Select(x => x.Last()).SkipLast(2))) {
-            Console.WriteLine("The board with the last col excluding the last two pieces:");
-            theBoard.boardMatrix.PrintOut();
-        }
-        else {
-            Console.WriteLine("Phase 2 failed");
-            theBoard.boardMatrix.PrintOut();
-            throw new InvalidOperationException("Phase 2 failed");
-        }
-
         // Assemble the last row and two last pieces in the column
         // Phase 3
-        //Console.WriteLine("--------- Phase 3 ---------");
         var bottomTargetRow = theBoard.targetMatrix.Last();
         char bottomRightTargetPiece = theBoard.targetMatrix.Last().Last();
-        char keyholeTargetPiece = theBoard.targetMatrix.SkipLast(1).Last().Last();
-
         foreach (char targetPiece in bottomTargetRow) {
-            //Console.WriteLine(targetPiece);
             if (theBoard.isSolved()) break;
             Coords currentPiecePosition = theBoard.GetPieceCurrentPosition(targetPiece);
             // If it is in the keyhole, bring it down
             if (currentPiecePosition == keyhole) {
                 theBoard.FixBottomRow();
                 theBoard.DragTargetPieceAllTheWayToTheRight(targetPiece);
-                theBoard.DragPieceToLocation(targetPiece, new Coords(1, 0));
+                theBoard.DragPieceToLocation(targetPiece, moveDown);
                 theBoard.FixBottomRow();
                 theBoard.FixTheLastCol();
-                //theBoard.boardMatrix.PrintOut();
                 continue;
             }
             // Move the piece all the way to the right
             theBoard.DragPieceAllTheWayToTheRight(targetPiece);
             // 1 down
-            theBoard.DragPieceToLocation(targetPiece, new Coords(1, 0));
+            theBoard.DragPieceToLocation(targetPiece, moveDown);
             // Move target place all the way to the right
             theBoard.FixBottomRow();
             theBoard.DragTargetPieceAllTheWayToTheRight(targetPiece);
             // 1 up (fix the col)
-            theBoard.FixTheLastCol();
+            theBoard.DragPieceToLocation(targetPiece, moveUp);
             theBoard.FixBottomRow();
-            // if Y is in the kyhole - get it out
-            char keyholeCurrentPiece = theBoard.boardMatrix.SkipLast(1).Last().Last();
-            if (keyholeCurrentPiece == bottomRightTargetPiece) {
-                // down
-                theBoard.DragLocation(keyhole, moveDown);
-                // right
-                theBoard.DragLocation(bottomRight, moveRight);
-                // up
-                theBoard.DragLocation(keyhole, moveUp);
-                // left
-                theBoard.DragLocation(bottomRight, moveLeft);
-            }
 
         }
 
-        Console.WriteLine("All assembled:");
-        theBoard.boardMatrix.PrintOut();
-
         // Final desperate attempts
+        List<string> tempSteps = theBoard.steps.ToList();
+        List<List<char>> tempBoard = theBoard.boardMatrix.FullClone();
         if (!theBoard.isSolved()) {
+            Console.WriteLine("Desperate attempts...");
             int downAttempts = 0;
-            while (downAttempts++ <= theBoard.targetMatrix.Count()) {
-                Console.WriteLine("Desperate attempt " + downAttempts);
+            while (downAttempts++ <= theBoard.targetMatrix.Count() * 10) {
                 // right
                 theBoard.DragLocation(keyhole, moveRight);
                 if (theBoard.isSolved()) break;
@@ -343,23 +342,49 @@ public class _1kyu_Loopover {
                 if (theBoard.isSolved()) break;
                 // down
                 theBoard.DragLocation(keyhole, moveDown);
+                if (theBoard.isSolved()) break;
+            }
+        }
+        // Final desparate attempts 2
+        if (!theBoard.isSolved()) {
+            theBoard.steps = tempSteps;
+            theBoard.boardMatrix = tempBoard;
+            Console.WriteLine("Desperate attempts 2...");
+            // left
+            theBoard.DragLocation(bottomRight, moveLeft);
+            // down
+            theBoard.DragLocation(bottomRight, moveDown);
+            // 4x4: DRDLDRD
+            int downAttempts = 0;
+            while (downAttempts++ <= theBoard.targetMatrix.Count()) {
+                // down
+                theBoard.DragLocation(bottomRight, moveDown);
+                if (theBoard.isSolved()) break;
+                // right
+                theBoard.DragLocation(bottomRight, moveRight);
+                if (theBoard.isSolved()) break;
+                // down
+                theBoard.DragLocation(bottomRight, moveDown);
+                if (theBoard.isSolved()) break;
+                // left
+                theBoard.DragLocation(bottomRight, moveLeft);
                 if (theBoard.isSolved()) break;
             }
         }
 
         // Print out the results ----------------------------------------------------------
-
-        Console.WriteLine("Resulting board:");
-        theBoard.boardMatrix.PrintOut();
-
-        //Console.WriteLine("Steps made:");
-        //theBoard.steps.PrintOut();
-
-        if (GetStringFromBoard(theBoard.targetMatrix) == GetStringFromBoard(theBoard.boardMatrix))
+        if (GetStringFromBoard(theBoard.targetMatrix) == GetStringFromBoard(theBoard.boardMatrix)) {
+            Console.WriteLine("Resulting board:");
+            theBoard.boardMatrix.PrintOut();
+            Console.WriteLine("Steps made:");
+            theBoard.steps.PrintOut();
             Console.WriteLine("The riddle was solved.\n");
-        else Console.WriteLine("NOT SOLVED!!!\n");
+            return theBoard.steps;
 
-        return theBoard.steps;
+        }
+        Console.WriteLine("NOT SOLVED!!!\n");
+        return null;
+
     }
 
 
@@ -372,10 +397,8 @@ public class _1kyu_Loopover {
         }
         public static Coords operator +(Coords a, Coords b) => new(a.row + b.row, a.col + b.col);
         public static Coords operator -(Coords a, Coords b) => new(a.row - b.row, a.col - b.col);
-
         public static bool operator ==(Coords a, Coords b) => a.row == b.row && a.col == b.col;
         public static bool operator !=(Coords a, Coords b) => a.row != b.row || a.col != b.col;
-
         public override string ToString() => $"[{row}:{col}]";
     }
 
@@ -440,7 +463,7 @@ public class _1kyu_Loopover {
 
         public void FixBottomRow() {
             char bottomLeftTargetPiece = targetMatrix.Last().First();
-            if (ThePieceIsOnTheRow(bottomLeftTargetPiece, boardMatrixSize.LastColPtr)) {
+            if (ThePieceIsOnTheRow(bottomLeftTargetPiece, boardMatrixSize.LastRowPtr)) {
                 // if we find the fires piece of the row
                 DragPieceAllTheWayToTheLeft(bottomLeftTargetPiece);
             }
@@ -529,11 +552,12 @@ public class _1kyu_Loopover {
                 rowOrcolToMove = location.row;
             }
 
-            // Save the step
-            steps.Add($"{direction}{distance}");
-
             // Now let's change the matrix
             while (distance-- > 0) {
+
+                // Save the step
+                steps.Add($"{direction}{rowOrcolToMove}");
+
                 if (direction == "U") {
                     int col = rowOrcolToMove;
                     char tmpTopValue = boardMatrix.First()[col];
@@ -542,7 +566,6 @@ public class _1kyu_Loopover {
                     }
                     boardMatrix.Last()[col] = tmpTopValue;
                 }
-
                 if (direction == "D") {
                     int col = rowOrcolToMove;
                     char tmpBottomValue = boardMatrix.Last()[col];
@@ -551,7 +574,6 @@ public class _1kyu_Loopover {
                     }
                     boardMatrix.First()[col] = tmpBottomValue;
                 }
-
                 if (direction == "L") {
                     int row = rowOrcolToMove;
                     char tmpFirstValue = boardMatrix[row].First();
@@ -560,7 +582,6 @@ public class _1kyu_Loopover {
                     }
                     boardMatrix[row][boardMatrix[row].Count - 1] = tmpFirstValue;
                 }
-
                 if (direction == "R") {
                     int row = rowOrcolToMove;
                     char tmpLastValue = boardMatrix[row].Last();
@@ -570,10 +591,7 @@ public class _1kyu_Loopover {
                     boardMatrix[row][0] = tmpLastValue;
                 }
             }
-
         }
-
-
     }
 
     // ---------- Helper functions ----------

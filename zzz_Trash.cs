@@ -163,4 +163,20 @@ theBoard.targetMatrix.PrintOut();
         theBoard.targetMatrix.PrintOut();
 -----------------------------------------------------------------------------------------------------------------------
 
+ // Disperation phase 0
+        var rightTargetColFull = theBoard.targetMatrix.Select(x => x.Last());
+        foreach (char targetPiece in rightTargetColFull) {
+            //  1 up
+            theBoard.DragLocation(new Coords(theBoard.boardMatrixSize.LastRowPtr, 0), new Coords(-1, 0));
+            // All the way to the right
+            theBoard.DragPieceAllTheWayToTheRight(targetPiece);
+            // All the way down
+            theBoard.DragPieceAllTheWayDown(targetPiece);
+            // All the way to the left
+            theBoard.DragPieceAllTheWayToTheLeft(targetPiece);
+            
+        }
+        Console.WriteLine("Only one column:");
+        theBoard.boardMatrix.PrintOut();
+
 #endif

@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Threading;
 
 namespace CodingChallenges;
 [TestClass]
@@ -16,6 +18,8 @@ public class Printing_Array_elements_with_Comma_delimiters {
         "h,o,l,a"
 
         */
+
+        Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 
         var data = new object[] { 2 };
         Assert.AreEqual("2", PrintArray_v2(data), "single int test failed 2 !=" + PrintArray(data));

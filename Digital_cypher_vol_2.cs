@@ -62,7 +62,7 @@ public class Digital_cypher_vol_2 {
         char[] resultArray = new char[code.Length];
         foreach (int codeInd in code.Select((_, ind) => ind)) {
             int rInt = code[codeInd] - keyArr[keyIndex];
-            rInt = rInt >= codepage.Length ? 0 : rInt;
+            rInt = rInt < 0 || rInt >= codepage.Length ? 0 : rInt;
             resultArray[codeInd] = codepage[rInt];
             keyIndex = ++keyIndex % keyLength;
         }

@@ -26,6 +26,7 @@ The Kata challenge list:
 * Data Reverse
 * Decipher this!
 * Digital cypher
+* Digital cypher vol 2
 * Divide and Conquer
 * Dot Calculator
 * Find sum of top-left to bottom-right diagonals

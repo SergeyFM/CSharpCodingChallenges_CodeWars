@@ -80,6 +80,7 @@ The Kata challenge list:
 * Transform To Prime
 * Two fighters one winner
 * Two Sum
+* "Very Even" Numbers
 * Welcome
 * What dominates your array?
 * What's a Perfect Power anyway?

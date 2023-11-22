@@ -48,6 +48,7 @@ The Kata challenge list:
 * Multiply Word in String
 * Name Array Capping
 * New Cashier Does Not Know About Space or Shift
+* Number Pairs
 * Numbers to Letters
 * Ordered Count of Characters
 * +1 Array

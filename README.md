@@ -82,6 +82,7 @@ The Kata challenge list:
 * Transform To Prime
 * Two fighters one winner
 * Two Sum
+* up AND down
 * "Very Even" Numbers
 * Welcome
 * What dominates your array?

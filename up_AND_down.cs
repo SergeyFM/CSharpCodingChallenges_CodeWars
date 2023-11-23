@@ -45,37 +45,34 @@ public class up_AND_down {
     */
 
     [DataTestMethod]
-    [DataRow("after be arrived two My so", "be ARRIVED two AFTER my SO")]
-    [DataRow("who hit retaining The That a we taken", "who RETAINING hit THAT a THE we TAKEN")]
-    [DataRow("on I came up were so grandmothers", "i CAME on WERE up GRANDMOTHERS so")]
-    [DataRow("way the my wall them him", "way THE my WALL him THEM")]
-    [DataRow("turn know great-aunts aunt look A to back", "turn GREAT-AUNTS know AUNT a LOOK to BACK")]
+    [DataRow("Braslia Braslia Eventually He I If She The Then They Waiting", "braslia EVENTUALLY he BRASLIA i SHE if THEN the WAITING they")]
+    [DataRow("after be arrived two My so", "be ARRIVED two AFTER my SO")] //3
+    [DataRow("who hit retaining The That a we taken", "who RETAINING hit THAT a THE we TAKEN")] //3
+    [DataRow("on I came up were so grandmothers", "i CAME on WERE up GRANDMOTHERS so")] //4
+    [DataRow("way the my wall them him", "way THE my WALL him THEM")] //1
+    [DataRow("turn know great-aunts aunt look A to back", "turn GREAT-AUNTS know AUNT a LOOK to BACK")] //2
 
     public void Test(string input, string expected) {
-        Console.WriteLine($"TEST: {input} => {expected}");
-        Assert.AreEqual(expected, Arrange(input));
+        Console.WriteLine($"     INPUT: \t{input}");
+        string result = Arrange(input);
+        Console.WriteLine($"    RESULT: \t{result}");
+        Console.WriteLine($"    EXPECT: \t{expected}");
+        Assert.AreEqual(expected, result);
+
+        //Console.WriteLine($"{item}".PadLeft(10) +": \t" + string.Join(' ',words));
+        //Console.WriteLine ($"\"{strng}\"");
+
 
     }
 
     public static string Arrange(string strng) {
-        string result = strng;
-        string previousResult = "";
-        do {
-            previousResult = result;
-            result = ArrangeOnce(result);
-
-        } while (result != previousResult);
-        return result;
-    }
-
-    public static string ArrangeOnce(string strng) {
         List<string> words = strng.Split().ToList();
         // move
         for (int i = 0; i < words.Count() - 1; i++) {
             string item = words[i];
             string nextItem = words[i + 1];
-            if (i % 2 == 0 && item.Length > nextItem.Length) words.Move(item, 1);
-            if (i % 2 != 0 && item.Length < nextItem.Length) words.Move(item, 1);
+            if (i % 2 == 0 && item.Length > nextItem.Length) words.Move(i, 1);
+            if (i % 2 != 0 && item.Length < nextItem.Length) words.Move(i, 1);
         }
         // capitalize and lowercasize
         words = words.Select((w, ind) => ind % 2 == 0 ? w.ToLower() : w.ToUpper()).ToList();
@@ -85,16 +82,14 @@ public class up_AND_down {
 
 public static class ListExtensions {
     // Moves item back or forward (one back: -1, one forward: +1), circular
-    public static void Move<T>(this List<T> lst, T item, int direction) {
-        int len = lst?.Count() ?? 0;
-        if (lst is null || len == 0) return;
-        int currIndex = lst.IndexOf(item);
+    public static void Move<T>(this List<T> words, int currIndex, int direction) {
+        int len = words?.Count() ?? 0;
+        if (words is null || len == 0 || currIndex < 0 || currIndex >= len) return;
+        T item = words[currIndex];
         int newIndex = currIndex + direction;
-        Console.WriteLine($"Move {item} {direction} from {currIndex} to {newIndex}");
         if (newIndex < 0) newIndex = len - 1;
         else if (newIndex >= len) newIndex = 0;
-        lst.Remove(item);
-        lst.Insert(newIndex, item);
-
+        words.RemoveAt(currIndex);
+        words.Insert(newIndex, item);
     }
 }

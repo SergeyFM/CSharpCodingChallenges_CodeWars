@@ -62,6 +62,7 @@ The Kata challenge list:
 * Simple Encryption #1 - Alternating Split
 * Simple string characters
 * Sort by Last Char
+* Sort - one, three, two
 * Sorted? yes? no? how?
 * Sorting by bits
 * Square Every Digit

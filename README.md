@@ -19,6 +19,7 @@ The Kata challenge list:
 * CamelCase Method
 * Categorize New Member
 * Compare Strings by Sum of Chars
+* Complete The Pattern #4
 * Consonant value
 * Convert an array of strings to array of numbers
 * Correct the time-string

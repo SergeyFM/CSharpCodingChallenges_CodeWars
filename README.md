@@ -93,6 +93,7 @@ The Kata challenge list:
 * What's a Perfect Power anyway?
 * Word a10n (abbreviation)
 * Write Number in Expanded Form
+* Write out numbers
 * Your order, please
 
 

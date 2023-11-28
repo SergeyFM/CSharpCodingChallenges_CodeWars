@@ -76,6 +76,7 @@ The Kata challenge list:
 * Take a Number And Sum Its Digits Raised To The Consecutive Powers
 * The Deaf Rats of Hamelin
 * The Hunger Games - Zoo Disaster!
+* The Lazy Startup Office
 * The Office II - Boredom Score
 * The Office VI - Sabbatical
 * The Poet And The Pendulum

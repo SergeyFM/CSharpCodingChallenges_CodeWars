@@ -20,6 +20,7 @@ The Kata challenge list:
 * Categorize New Member
 * Compare Strings by Sum of Chars
 * Complete The Pattern #4
+* Computer problem series #1: Fill the Hard Disk Drive
 * Consonant value
 * Convert an array of strings to array of numbers
 * Correct the time-string

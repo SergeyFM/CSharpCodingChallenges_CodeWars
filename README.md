@@ -37,6 +37,7 @@ The Kata challenge list:
 * Highest Rank Number in an Array
 * How old will I be in 2099?
 * Insert dashes
+* Integer Difference
 * Is n divisible by (...)?
 * Land perimeter
 * Largest pair sum in array

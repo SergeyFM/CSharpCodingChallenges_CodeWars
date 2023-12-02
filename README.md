@@ -30,6 +30,7 @@ The Kata challenge list:
 * Digital cypher vol 2
 * Divide and Conquer
 * Dot Calculator
+* Even or Odd - Which is Greater?
 * Find sum of top-left to bottom-right diagonals
 * Find the middle element
 * Form The Minimum

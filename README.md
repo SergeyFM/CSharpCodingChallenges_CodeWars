@@ -55,6 +55,7 @@ The Kata challenge list:
 * Number Pairs
 * Numbers to Letters
 * Ordered Count of Characters
+* Playing on a chessboard
 * +1 Array
 * Power of two
 * Printing Array elements with Comma delimiters

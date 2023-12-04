@@ -9,6 +9,7 @@ The Kata challenge list:
 * Bird Mountain - the river
 * Connect Four
 * Find the unknown digit
+* Sum of Intervals
 * Alphabet symmetry
 * Array Deep Count
 * Balanced Number (Special Numbers Series #1 )

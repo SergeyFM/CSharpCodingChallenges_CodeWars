@@ -75,6 +75,7 @@ The Kata challenge list:
 * Street Fighter 2 - Character Selection
 * Sum of a sequence
 * Sum of integers in string
+* Sum of prime-indexed elements
 * Sum of Triangular Numbers
 * Sum The Tree
 * Switcheroo

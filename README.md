@@ -61,6 +61,7 @@ The Kata challenge list:
 * Power of two
 * Printing Array elements with Comma delimiters
 * Remove duplicate words
+* Remove the parentheses
 * Replace With Alphabet Position
 * Round by 0.5 steps
 * Row Weights

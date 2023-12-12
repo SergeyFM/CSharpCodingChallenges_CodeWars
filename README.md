@@ -1,3 +1,5 @@
+## Please leave a :star: if you find this repository useful :)
+
 # C# Coding Challenges
 
 I wish I had more time to solve such challenges. It is not only useful, but also a lot of fun, at least for me :)

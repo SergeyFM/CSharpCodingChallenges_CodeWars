@@ -34,6 +34,7 @@ The Kata challenge list:
 * Dot Calculator
 * Even or Odd - Which is Greater?
 * Find sum of top-left to bottom-right diagonals
+* Find the longest gap!
 * Find the middle element
 * Form The Minimum
 * Give me a Diamond

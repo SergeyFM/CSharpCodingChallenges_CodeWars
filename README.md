@@ -1,3 +1,5 @@
+## Please leave a :star: if you find this repository useful :)
+
 # C# Coding Challenges
 
 I wish I had more time to solve such challenges. It is not only useful, but also a lot of fun, at least for me :)
@@ -35,6 +37,7 @@ The Kata challenge list:
 * Elapsed Seconds
 * Even or Odd - Which is Greater?
 * Find sum of top-left to bottom-right diagonals
+* Find the longest gap!
 * Find the middle element
 * Form The Minimum
 * Give me a Diamond

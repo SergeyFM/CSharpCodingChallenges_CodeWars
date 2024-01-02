@@ -60,6 +60,7 @@ The Kata challenge list:
 * Number Pairs
 * Numbers to Letters
 * Ordered Count of Characters
+* Parse HTML/CSS Colors
 * Playing on a chessboard
 * +1 Array
 * Power of two

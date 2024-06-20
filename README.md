@@ -14,6 +14,7 @@ The Kata challenge list:
 * Sum of Intervals
 * Alphabet symmetry
 * Array Deep Count
+* Array Helpers
 * Baby shark lyrics generator
 * Balanced Number (Special Numbers Series #1 )
 * Best travel

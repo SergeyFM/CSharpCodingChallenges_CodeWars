@@ -75,6 +75,7 @@ The Kata challenge list:
 * Row Weights
 * Shorter concat (reverse longer)
 * Simple Encryption #1 - Alternating Split
+* Simple fraction to mixed number converter
 * Simple string characters
 * Sort by Last Char
 * Sort - one, three, two

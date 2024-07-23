@@ -60,6 +60,7 @@ The Kata challenge list:
 * Name Array Capping
 * New Cashier Does Not Know About Space or Shift
 * Next Palindromic Number
+* Number Format
 * Number Pairs
 * Numbers to Letters
 * Ordered Count of Characters
